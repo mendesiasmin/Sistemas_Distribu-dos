@@ -1,4 +1,4 @@
-# FSD - Trabalho 1, TCO
+# FSD - Trabalho 1, TCP
 >  Alunos: Artur Bersan Iasmin Mendes
 
 >  Matrículas: 14/0041940 e 14/0016813
