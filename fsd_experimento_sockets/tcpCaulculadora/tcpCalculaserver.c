@@ -1,10 +1,18 @@
+/* Lab01
+* FSD - Server TCP
+* Programa para receber uma operacao numerica para do cliente e enviar o resultado da operacao.
+*
+* Artur Bersan de Faria 14/0016813
+* Iasmin Santos Mendes 14/0041940
+*
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h> /*memset*/
-#include <netinet/in.h> /*sockaddr_in*/
-// #include <sys/socket.h>
-#include <arpa/inet.h> /* inet_addr */
-#include <unistd.h> /*close*/
+#include <string.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 
 #define MAX_MSG 100
 #define QLEN 5/*tamanho da fila de clientes*/
