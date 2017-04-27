@@ -30,7 +30,9 @@ int main (int argc, char *argv[])
         int   numtasks, taskid, rc, dest, offset, i, j, tag1,
               tag2, source, chunksize;
         float my_max_number, max_number;
-        float update(int myoffset, int chunk, int myid);
+        float my_min_number, min_number;
+        float find_max(int myoffset, int chunk, int myid);
+        float find_min(int myoffset, int chunk, int myid);
         MPI_Status status;
 
         /***** Initializations *****/
@@ -52,14 +54,18 @@ int main (int argc, char *argv[])
 
                 /* Initialize the array */
                 max_number = 0;
+                min_number = 0;
                 for(i=0; i<ARRAYSIZE; i++) {
-                        data[i] =  (i - ARRAYSIZE/2);
+                        data[i] = pow((i - ARRAYSIZE/2),2);
+                        data[i] = sqrt(data[i]);
                         if(max_number<data[i]){
                                 max_number = data[i];
+                        } if (min_number>data[i]){
+                                min_number = data[i];
                         }
                 }
-                max_number = 0;
                 printf("Initialized array max_number = %e\n",max_number);
+                printf("Initialized array min_number = %e\n",min_number);
 
                 /* Send each task its portion of the array - master keeps 1st part */
                 offset = chunksize;
@@ -72,7 +78,8 @@ int main (int argc, char *argv[])
 
                 /* Master does its part of the work */
                 offset = 0;
-                my_max_number = update(offset, chunksize, taskid);
+                my_max_number = find_max(offset, chunksize, taskid);
+                my_min_number = find_min(offset, chunksize, taskid);
 
                 /* Wait to receive results from each task */
                 for (i=1; i<numtasks; i++) {
@@ -84,6 +91,7 @@ int main (int argc, char *argv[])
 
                 /* Get final sum and print sample results */
                 MPI_Reduce(&my_max_number, &max_number, 1, MPI_FLOAT, MPI_MAX, MASTER, MPI_COMM_WORLD);
+                MPI_Reduce(&my_min_number, &min_number, 1, MPI_FLOAT, MPI_MIN, MASTER, MPI_COMM_WORLD);
                 printf("Sample results: \n");
                 offset = 0;
                 for (i=0; i<numtasks; i++) {
@@ -93,6 +101,7 @@ int main (int argc, char *argv[])
                         offset = offset + chunksize;
                 }
                 printf("*** Final max_number= %e ***\n",max_number);
+                printf("*** Final min_number= %e ***\n",min_number);
 
         }  /* end of master section */
 
@@ -108,7 +117,8 @@ int main (int argc, char *argv[])
                 MPI_Recv(&data[offset], chunksize, MPI_FLOAT, source, tag2,
                                 MPI_COMM_WORLD, &status);
 
-                my_max_number = update(offset, chunksize, taskid);
+                my_max_number = find_max(offset, chunksize, taskid);
+                my_min_number = find_min(offset, chunksize, taskid);
 
                 /* Send my results back to the master task */
                 dest = MASTER;
@@ -116,6 +126,7 @@ int main (int argc, char *argv[])
                 MPI_Send(&data[offset], chunksize, MPI_FLOAT, MASTER, tag2, MPI_COMM_WORLD);
 
                 MPI_Reduce(&my_max_number, &max_number, 1, MPI_FLOAT, MPI_MAX, MASTER, MPI_COMM_WORLD);
+                MPI_Reduce(&my_min_number, &min_number, 1, MPI_FLOAT, MPI_MIN, MASTER, MPI_COMM_WORLD);
 
         } /* end of non-master */
 
@@ -125,7 +136,7 @@ int main (int argc, char *argv[])
 }   /* end of main */
 
 
-float update(int myoffset, int chunk, int myid) {
+float find_max(int myoffset, int chunk, int myid) {
         int i;
         float my_max_number;
         /* Perform addition to each of my array elements and keep my sum */
@@ -141,3 +152,17 @@ float update(int myoffset, int chunk, int myid) {
 }
 
 
+float find_min(int myoffset, int chunk, int myid) {
+        int i;
+        float my_min_number;
+        /* Perform addition to each of my array elements and keep my sum */
+        my_min_number = 0;
+        for(i=myoffset; i < myoffset + chunk; i++) {
+                data[i] =  (i - ARRAYSIZE/2);
+                if(my_min_number>data[i]){
+                        my_min_number = data[i];
+                }
+        }
+        printf("Task %d my_min_number = %e\n",myid,my_min_number);
+        return(my_min_number);
+}
