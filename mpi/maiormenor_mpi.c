@@ -52,20 +52,13 @@ int main (int argc, char *argv[])
         /***** Master task only ******/
         if (taskid == MASTER){
 
-                /* Initialize the array */
+                /* Initialize the first part of array*/
                 max_number = 0;
                 min_number = 0;
-                for(i=0; i<ARRAYSIZE; i++) {
+                for(i=0; i<chunksize; i++) {
                         data[i] = pow((i - ARRAYSIZE/2),2);
                         data[i] = sqrt(data[i]);
-                        if(max_number<data[i]){
-                                max_number = data[i];
-                        } if (min_number>data[i]){
-                                min_number = data[i];
-                        }
                 }
-                printf("Initialized array max_number = %e\n",max_number);
-                printf("Initialized array min_number = %e\n",min_number);
 
                 /* Send each task its portion of the array - master keeps 1st part */
                 offset = chunksize;
