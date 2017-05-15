@@ -1,0 +1,1 @@
+{"rsync":{"/vagrant":{"type":"rsync","guestpath":"/vagrant","hostpath":"/home/artur/Documentos/unb/7semestre/fsd/chef-devenv","disabled":false,"__vagrantfile":true,"owner":"vagrant","group":"vagrant"}}}
